@@ -1,3 +1,4 @@
+
 # CO2 Forecasting
 
 This repository contains scripts and notebooks for forecasting CO2 levels using data from an STM32 CO2 sensor. The project involves collecting sensor data, enhancing it, and using time series forecasting models to predict future CO2 levels.
@@ -89,3 +90,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 For questions or suggestions, contact [cherifjebali0301@gmail.com](mailto:cherifjebali0301@gmail.com).
+
+# Senior-Project-Mustdam-
+ Saudi Arabia's First Carbon Credit Market Mustdam contributes to the development of one of the first carbon credit markets and emission management in Saudi Arabia that helps organizations adhere to standards and reduce its emissions more effectively. It's a comprehensive solution for sustainable success.
+
