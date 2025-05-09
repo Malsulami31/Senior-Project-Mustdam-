@@ -26,7 +26,6 @@ export default function Register() {
     Country:"",
     SustainablePrac:"",
     farmingMethods:"",
-    useCase: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -70,16 +69,12 @@ export default function Register() {
     setStep((prev) => prev - 1);
     }
   };
-  const handleFileChange = (event) => {
-    setFormData({
-      ...formData,
-      file: event.target.files[0],
-    });
-  };
+  
 
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
+    //validate that the user should enter thhese info
     if (!formData.email || !formData.password || !formData.userType) {
       alert("Please fill in all required fields.");
       return;
@@ -92,7 +87,7 @@ export default function Register() {
         formData.password
       );
       const user = userCredential.user;
-        let userType=formData.userType;
+      let userType=formData.userType;
       let userData = {
         email: formData.email,
       };
@@ -136,10 +131,9 @@ export default function Register() {
       }
 
     } catch (error) {
-       alert("Failed to register: " + error.message);
        console.error("Error during sign-up:", error.message);
     }
-     alert("Registered Successfully!");
+    
   };
 
 
@@ -302,7 +296,7 @@ export default function Register() {
                 <input type="text" name="Offset" value={formData.Offset} onChange={handleChange} className="w-full border rounded px-3 py-2 mb-1" placeholder="write your Offset Goal here" />
 
                 <label className="block">Upload any existing reports or data for analysis*</label>
-                <input type="file" onChange={handleFileChange} className="w-full border rounded px-3 py-2 mb-1" />
+                <input type="file"  className="w-full border rounded px-3 py-2 mb-1" />
 
                 <div className="flex justify-between mt-4">
                 <button onClick={prevStep} className="bg-yellow-500 text-white px-4 py-2 rounded">Back</button>

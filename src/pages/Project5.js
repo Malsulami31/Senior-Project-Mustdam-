@@ -141,7 +141,7 @@ const SaudiFarm = () => {
             <span className="font-bold">{totalPrice.toFixed(2)} SAR</span>
           </div>
 
-          <button className="text-white bg-yellow-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center">
+          <button onClick={() => navigate("/checkout")} className="text-white bg-yellow-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center">
             Buy now {totalPrice.toFixed(2)} SAR
           </button>
         </div>

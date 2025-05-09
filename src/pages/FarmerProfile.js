@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { User, Search, ChevronDown, X, Trash2, Edit } from 'lucide-react';
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import app from "/Users/ghadihersi/Desktop/Senior-Project-Mustdam--Mustdam_Frontend/src/firebase.js"; // Your Firebase app initialization
+import app from "/Users/ghadihersi/Desktop/Senior-Project-Mustdam--Mustdam_Frontend/src/firebase.js"; 
 import { useEffect } from 'react';
 import { doc, updateDoc,deleteDoc } from "firebase/firestore";
 import { auth } from "/Users/ghadihersi/Desktop/Senior-Project-Mustdam--Mustdam_Frontend/src/firebase.js"; 
 import { query, where,onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { Link } from "react-router-dom";
 
 
 
@@ -17,7 +18,6 @@ const FarmerProfile = () => {
   const [isAddCreditModalOpen, setIsAddCreditModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [credits, setCredits] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [newCredit, setNewCredit] = useState({
     projectSource: '',
@@ -34,12 +34,12 @@ const FarmerProfile = () => {
 
 
 
-
+//fetch  logged in user carbon credit
   useEffect(() => {
     let unsubscribeCredits = null;
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
+      if (user) {//make sure the user is logged in
         // User is logged in, fetch their credits
         const creditsQuery = query(
           collection(db, "CarbonCredits"),
@@ -53,12 +53,10 @@ const FarmerProfile = () => {
           }));
 
           setCredits(userCredits);
-          setLoading(false);
         });
       } else {
         // User is logged out
         setCredits([]);
-        setLoading(false);
       }
     });
 
@@ -67,6 +65,7 @@ const FarmerProfile = () => {
       unsubscribeAuth();
     };
   }, []);
+
 
 
 
@@ -87,13 +86,12 @@ const FarmerProfile = () => {
   };
 
 
-
-
+//validate inputs
   const validateForm = (creditToValidate, isEditing = false) => {
     const errors = {
-      projectSource: !creditToValidate.projectSource.trim(),
-      amount: !creditToValidate.amount || parseFloat(creditToValidate.amount) <= 0,
-      pricePerCredit: !creditToValidate.pricePerCredit || parseFloat(creditToValidate.pricePerCredit) <= 0
+      projectSource: !creditToValidate.projectSource.trim(),//value must not be empty
+      amount: !creditToValidate.amount || parseFloat(creditToValidate.amount) <= 0,// The value must be a positive number.
+      pricePerCredit: !creditToValidate.pricePerCredit || parseFloat(creditToValidate.pricePerCredit) <= 0//The value must be a positive number.
     };
 
     setFormErrors(errors);
@@ -102,19 +100,18 @@ const FarmerProfile = () => {
 
 
 
-
-  
-
 const handleAddCredit = async () => {
-  if (!validateForm(newCredit)) return;
 
+  //validate input before adding the credits
+  if (!validateForm(newCredit)) return;
   // Get the current user's UID
   const user = auth.currentUser;
+  // if no user logged in show error
   if (!user) {
     console.error("No user is logged in");
     return;
   }
-
+// object of info to be added in the database
   const creditToAdd = {
     ...newCredit,
     amount: parseFloat(newCredit.amount),
@@ -125,11 +122,10 @@ const handleAddCredit = async () => {
   };
 
   try {
-    const docRef = await addDoc(collection(db, "CarbonCredits"), creditToAdd);
+    const docRef = await addDoc(collection(db, "CarbonCredits"), creditToAdd);// add doc in which we will add the new credit
 
-    // Add to local state (with Firestore document ID)
-    setCredits((prevCredits) => [{ id: docRef.id, ...creditToAdd }, ...prevCredits]);
-
+   // The rest of the credits (prevCredits) are added after it.
+    setCredits((prevCredits) => [{ id: docRef.id, ...creditToAdd }, ...prevCredits]);//Adds the new credit (including Firestore document ID) at the beginning of the array.
     setNewCredit({ projectSource: "", amount: "", pricePerCredit: "" });
     setIsAddCreditModalOpen(false);
   } catch (error) {
@@ -142,28 +138,29 @@ const handleAddCredit = async () => {
   
 const handleEditCredit = async () => {
   if (!validateForm(editingCredit, true)) return;
-
+  //the editingCredit object contains all the information about the credit being edited,
   const { id, ...rest } = editingCredit;
-
+  // It prepares a new object with the updated credit information.
   const creditToUpdate = {
     ...rest,
-    amount: parseFloat(editingCredit.amount),
-    pricePerCredit: parseFloat(editingCredit.pricePerCredit),
+    amount: parseFloat(editingCredit.amount),//ensure amount is a number
+    pricePerCredit: parseFloat(editingCredit.pricePerCredit),//ensure price is a number
   };
 
   try {
+    //Updates the document in Firestore with the creditToUpdate data.
     const docRef = doc(db, "CarbonCredits", id);
     await updateDoc(docRef, creditToUpdate);
 
-    // Update the local state after successful update
+    // Updates the app's local list of credits 
     setCredits((prevCredits) =>
-      prevCredits.map((credit) =>
-        credit.id === id ? { ...credit, ...creditToUpdate } : credit
+      prevCredits.map((credit) =>//Loops through the existing credits (prevCredits).
+        credit.id === id ? { ...credit, ...creditToUpdate } : credit//If a credit's id matches the id of the edited credit, it replaces that credit with the updated data.
       )
     );
 
     setIsEditModalOpen(false);
-    setEditingCredit(null);
+    setEditingCredit(null);//Clears the editingCredit state to reset the editing form.
   } catch (error) {
     console.error("Error editing credit in Firestore:", error);
   }
@@ -180,22 +177,17 @@ const handleDeleteCredit = async (id) => {
     // Delete the credit from Firestore
     await deleteDoc(doc(db, "CarbonCredits", id));
 
-    // Update the local state to remove the deleted credit
+    // Updates the local state by removing the credit with the matching id from the credits array.
     setCredits((prevCredits) => prevCredits.filter((credit) => credit.id !== id));
   } catch (error) {
     console.error("Error deleting credit from Firestore:", error);
   }
 };
 
-
-
-
   const handleEditModalOpen = (credit, index) => {
     setEditingCredit({ ...credit, index });
-    setIsEditModalOpen(true);
+    setIsEditModalOpen(true);//This tells the app to show the modal for editing.
   };
-
-
 
 
 
@@ -216,6 +208,7 @@ const handleDeleteCredit = async (id) => {
     });
   }, [credits, searchTerm, sortOption]);
 
+
   return (
 
       <div className="min-h-screen bg-gray-100 flex h screen">
@@ -229,10 +222,14 @@ const handleDeleteCredit = async (id) => {
           
           <div className="space-y-2">
             <div className="flex items-center text-gray-500 hover:bg-gray-100 p-2 rounded">
-              <span>Profile</span>
+            <Link to="/Home" className="flex items-center text-gray-500 hover:bg-gray-100 p-2 rounded">
+                <span>Home</span>
+              </Link>
             </div>
             <div className="flex items-center text-gray-500 hover:bg-gray-100 p-2 rounded">
-              <span>Carbon Credit</span>
+            <Link to="/Market" className="flex items-center text-gray-500 hover:bg-gray-100 p-2 rounded">
+                <span>Market</span>
+              </Link>
             </div>
             <div className="flex items-center text-gray-500 hover:bg-gray-100 p-2 rounded">
               <span>Settings</span>

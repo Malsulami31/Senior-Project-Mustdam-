@@ -49,10 +49,31 @@ const SignIn = () => {
   };
 
   return (
+
+    
     <div
   className="min-h-screen flex flex-col justify-center items-center bg-cover bg-center px-10 py-10 pt-24"
   style={{ backgroundImage: "url('/images/Figure6.png')", backgroundSize: "cover", backgroundPosition: "center" }}
 >
+    {/* Navbar */}
+          <header className="fixed w-full top-0 z-50 bg-white text-gray-900 shadow-md">
+            <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+              <div className="flex items-center space-x-4">
+                <img src="/images/mustdam-logo.png" alt="Mustdam Logo" className="h-8 w-10" />
+                <h1 className="text-xl text-black-500 uppercase font-bold">Mustdam</h1>
+              </div>
+              <nav className="space-x-6">
+                <a href="/" className="hover:text-green-400">Home</a>
+                <a href="/aboutus" className="hover:text-green-400">About Us</a>
+                <a href="/carbon_market" className="hover:text-green-400">Carbon Market</a>
+                <a href="/contact" className="hover:text-green-400">Contact Us</a>
+                <a href="#register" className="hover:text-green-400">Register</a>
+              </nav>
+              <button className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-6 rounded-lg">
+                <Link to="/register">Register</Link>
+              </button>
+            </div>
+          </header>
   <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
     <h2 className="text-xl font-semibold text-center mb-4">Sign In</h2>
     <h4 className="text-l font-semibold text-center text-gray-700 mb-4">
@@ -86,7 +107,7 @@ const SignIn = () => {
       </button>
       <p className="text-sm">
         Don't have an account?{" "}
-        <Link to="/Signup" className="text-blue-500 hover:underline">
+        <Link to="/Register" className="text-blue-500 hover:underline">
           Sign up
         </Link>
       </p>

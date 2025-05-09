@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LucideSearch, LucideBell, LucideUser } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, updateDoc, increment } from "firebase/firestore";
@@ -15,11 +14,11 @@ const Checkout = () => {
   const handlePayment = async (e) => {
     e.preventDefault();
 
-    const auth = getAuth();
-    const db = getFirestore();
-    const user = auth.currentUser;
+    const auth = getAuth();//Initializes Firebase Authentication to access user-related functions.
+    const db = getFirestore();//Initializes Firebase Firestore to interact with the database.
+    const user = auth.currentUser;// Represents the currently signed-in user (or null if no user is logged in).
 
-    if (user) {
+    if (user) {//ensure the user is logged in
       try {
         // Reference to the factory document
         const factoryRef = doc(db, "Factory", user.uid);
@@ -32,8 +31,16 @@ const Checkout = () => {
         // Navigate to the confirmation page
         navigate("/confirmation", { state: { quantity, totalPrice } });
       } catch (error) {
-        console.error("Error updating Firestore: ", error);
-        alert("There was an error processing your purchase. Please try again.");
+        if (error.code === "permission-denied") {
+          console.error("Permission denied: You do not have access to update this record.", error);
+          alert("You do not have permission to perform this action. Please contact support.");
+        } else if (error.code === "not-found") {
+          console.error("Document not found: The factory record does not exist.", error);
+          alert("We couldn't find your factory record. Please verify your account details.");
+        } else {
+          console.error("Unexpected error while updating Firestore:", error);
+          alert("An unexpected error occurred while processing your purchase. Please try again later.");
+        }
       }
     } else {
       alert("You need to be logged in to complete the purchase.");

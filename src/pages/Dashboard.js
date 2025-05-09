@@ -4,7 +4,7 @@ import {LucideHome,LucideLineChart,LucideFileText,LucideSettings,LucideBell,Luci
 import { db } from "../firebase"; 
 import { collection, getDocs, getDoc, doc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { query, where } from "firebase/firestore";
+import { query } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import "jspdf-autotable"; 
@@ -21,10 +21,7 @@ const Dashboard = () => {
   const [factoryData, setFactoryData] = useState(null);
   const [emissionData, setEmissionData] = useState([]);
   const [forecastData2, setForecastData2] = useState([]);
-  
-  const [loading, setLoading] = useState(true);
-
-  const [sourcesData, setSourcesData] = useState([
+  const [sourcesData] = useState([
     { source: "Boilers", emissions: 500 },
     { source: "Industrial Processes", emissions: 400 },
     { source: "Fuel Combustion", emissions: 300 },
@@ -32,6 +29,7 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
   const auth = getAuth();
+
   const menuItems = [
     { name: "Dashboard", icon: <LucideHome />, path: "/dashboard" },
     { name: "Market", icon: <LucideLineChart />, path: "/Market" },
@@ -40,7 +38,7 @@ const Dashboard = () => {
   ];
 
  
-  // Fetch annual emissions
+  // Fetch annual emissions from the database 
   useEffect(() => {
     const fetchAnnualEmissions = async () => {
       try {
@@ -55,40 +53,57 @@ const Dashboard = () => {
         });
         setEmissionsData(emissionsList);
       } catch (error) {
-        console.error("Error fetching annual emissions:", error);
+        if (error.message.includes("No data found")) {
+          console.error("Custom Error: No emission data available.", error);
+        } else if (error.message.includes("Invalid data format")) {
+          console.error("Custom Error: Data format issue.", error);
+        }  else {
+          console.error("An unexpected error occurred:", error);
+        }
       }
     };
     fetchAnnualEmissions();
   }, []);
 
-  // Fetch current emissions for the logged-in user
-  useEffect(() => {
-    const fetchCurrentEmission = async () => {
-      const auth = getAuth();
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          try {
-            const userDocRef = doc(db, "Factory", user.uid);
-            const userDoc = await getDoc(userDocRef);
-            if (userDoc.exists()) {
-              const data = userDoc.data();
-              setCurrentEmission(data.carbonEmissions || 0);
-              setCurrentOffset(data.Offset || 0);
-              setCurrentCredit(data.CarbonCreditPurchased || 0);
-            }
-          } catch (error) {
-            console.error("Error fetching user emissions:", error);
-          }
-        }
-      });
-    };
-    fetchCurrentEmission();
-  }, []);
+
+
+  // Fetch CO2 Amount from the Sensor collection
+useEffect(() => {
+  const fetchCurrentEmission = async () => {
+    try {
+      // Reference the Sensor collection
+      const sensorCollectionRef = collection(db, "Sensor");
+
+      // Get all documents in the Sensor collection
+      const sensorSnapshot = await getDocs(sensorCollectionRef);
+
+      if (!sensorSnapshot.empty) {
+        let totalCo2Amount = 0;
+
+        // Iterate through each document and aggregate the Co2Amount
+        sensorSnapshot.forEach((doc) => {
+          const sensorData = doc.data();
+          totalCo2Amount = sensorData.Co2Amount || 0; // Sum up Co2Amount, defaulting to 0 if missing
+        });
+
+        // Update the state with the total CO2 amount
+        setCurrentEmission(totalCo2Amount);
+      } else {
+        console.error("No documents found in the Sensor collection.");
+      }
+    } catch (error) {
+      console.error("Error fetching CO2 amounts from the Sensor collection:", error);
+    }
+  };
+
+  fetchCurrentEmission();
+}, []);
+
 
   
   // Fetch forecast data(5years) from FastAPI
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/forecast/")
+    fetch("http://127.0.0.1:8081/forecast/")//HTTP request made to this API
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched forecast data:", data);
@@ -97,7 +112,7 @@ const Dashboard = () => {
       .catch((error) => console.error("Error fetching forecast data:", error));
   }, []);
 
-
+// Fetch forecast data(next 20 min) from FastAPI
   useEffect(() => {
     // Fetch data from FastAPI backend
     axios.get("http://127.0.0.1:8001/forecast2/")
@@ -110,7 +125,16 @@ const Dashboard = () => {
         setForecastData2(processedData);
       })
       .catch((error) => {
-        console.error("Error fetching forecast data:", error);
+        if (error.response) {
+          // The request was made, and the server responded with a status code outside the range of 2xx
+          console.error(`Server responded with status ${error.response.status}:`, error.response.data);
+        } else if (error.request) {
+          // The request was made, but no response was received
+          console.error("No response received from the server. Possible connection issue:", error.request);
+        } else {
+          // Something else went wrong
+          console.error("Error making the request:", error.message);
+      }
       });
   }, []);
   
@@ -118,15 +142,15 @@ const Dashboard = () => {
 
   const handleNavigation = (path) => {
     if (path === "/Market" || path=== "/Home") {
-      // Do not navigate but set activePage to "reports"
       navigate(path);
     } else {
       setActivePage(path);
     }
   };
 
+
   useEffect(() => {
-    const fetchFactoryAndEmissionData = async (uid) => {
+    const fetchReportData = async (uid) => {
       try {
         // Fetch factory data for the current user using uid as the document ID
         const factoryDocRef = doc(db, "Factory", uid);
@@ -149,23 +173,23 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
-  
+
     // Get the currently logged-in user
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        fetchFactoryAndEmissionData(user.uid);
+        fetchReportData(user.uid);
       } else {
         console.error("No user logged in.");
-        setLoading(false);
       }
     });
   }, [db, auth]);
   
   
+
+
+  //generate pdf report 
   const generatePDF = () => {
     const doc = new jsPDF();
   
@@ -257,8 +281,8 @@ const Dashboard = () => {
   
     // Static Recommendation data
     const recommendationData = [
-      { recommendation: "Increase efficiency in production", month: "April", impact: "High" },
-      { recommendation: "Reduce CO2 emissions by 5%", month: "May", impact: "Medium" }
+      { recommendation: "Increase efficiency ", month: "April", impact: "High" },
+      { recommendation: "Reduce CO2 by 5%", month: "May", impact: "Medium" }
     ];
   
     // Add Recommendation Data Table
@@ -339,6 +363,8 @@ const Dashboard = () => {
   
 
 
+
+  
   return (
     <div className="flex h-screen">
       
@@ -440,7 +466,7 @@ const Dashboard = () => {
           <div>
 
 
-       {/* Forecast Chart */}
+       {/* Forecast Chart(20 min) */}
       <div className="bg-white shadow-lg p-6 rounded-2xl mt-8">
       <h2 className="text-xl font-semibold mb-4">Forecasted Emissions Next 20 Minutes</h2>
       <ResponsiveContainer width="100%" height={400}>
@@ -456,7 +482,7 @@ const Dashboard = () => {
     </div>
 
 
-          {/* Forecast Chart */}
+          {/* Forecast Chart(5 Years) */}
           <div className="bg-white shadow-lg p-6 rounded-2xl mt-8">
             <h2 className="text-xl font-semibold mb-4">Forecasted Emissions Next 5 Years</h2>
             <ResponsiveContainer width="100%" height={250}>
