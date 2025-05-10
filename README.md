@@ -62,11 +62,8 @@ To use this project:
 3. Run the data processing and analysis scripts.
 4. Use the provided Jupyter notebooks for detailed analysis and visualization.
 
-## Warning
 
-⚠️ Please note that the forecasts and analyses provided by this project are **estimates** and should be interpreted with caution. This project was developed as part of a summer internship and is intended for educational and exploratory purposes. ⚠️
-
-**Key Points:**
+## Key Points:
 - **Accuracy**: The forecasted results and accuracy metrics are based on the data and methods used during the internship. These estimates may not be fully accurate or reliable for practical applications.
 - **Data Collection**: The data was collected over a two-week period in a single room at work, which may not represent broader or different conditions.
 - **Model Limitations**: The forecasting models used in this project are based on certain assumptions and parameters which may not generalize well beyond the specific context of the collected data.
