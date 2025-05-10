@@ -29,11 +29,6 @@ The repository is divided into several parts:
 
 This project aims to forecast CO2 levels using data collected from an STM32-based CO2 sensor. The data is processed and analyzed using Python libraries to create predictive models.
 
-## STM32 Projects
-
-This project leverages the following STM32 projects:
-- [STM32 SDC30 CO2 Sensor](https://github.com/cherifon/STM32_SDC30_CO2_Sensor): Project for interfacing with the SDC30 CO2 sensor.
-- [STM32 16x2 LCD](https://github.com/cherifon/STM32_16x2_LCD): Project for displaying data on a 16x2 LCD screen.
 
 ## Data Collection
 
@@ -77,19 +72,6 @@ To use this project:
 - **Model Limitations**: The forecasting models used in this project are based on certain assumptions and parameters which may not generalize well beyond the specific context of the collected data.
 
 For any critical applications, further validation and refinement of the models and methods should be performed. Use the findings from this project as a starting point for further exploration and development.
-
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-For questions or suggestions, contact [cherifjebali0301@gmail.com](mailto:cherifjebali0301@gmail.com).
 
 # Senior-Project-Mustdam-
  Saudi Arabia's First Carbon Credit Market Mustdam contributes to the development of one of the first carbon credit markets and emission management in Saudi Arabia that helps organizations adhere to standards and reduce its emissions more effectively. It's a comprehensive solution for sustainable success.
