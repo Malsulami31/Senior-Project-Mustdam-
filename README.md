@@ -1,16 +1,12 @@
-# Senior-Project-Mustdam-
- Saudi Arabia's First Carbon Credit Market Mustdam contributes to the development of one of the first carbon credit markets and emission management in Saudi Arabia that helps organizations adhere to standards and reduce its emissions more effectively. It's a comprehensive solution for sustainable success.
- 
+# 🌱 **Mustdam: Saudi Arabia's First Carbon Credit Market** 🌍  
+
+Mustdam contributes to developing one of the first carbon credit markets and emission management systems in Saudi Arabia, helping organizations adhere to standards and reduce emissions effectively. It's a comprehensive solution for sustainable success.
 ## 📖 **Setup and Installation Guide**  
 
 This guide will help you set up and run the Mustdam project. The repository contains the following branches for specific functionalities:  
 - **`AIModel5Years`**: AI model for predicting emissions over the next 5 years.  
 - **`AIModel1`**: AI model for predicting emissions for the next 20 minutes.  
 - **`FinalCode`**: Complete project code with all features and integrations.
-
-# 🌱 **Mustdam: Saudi Arabia's First Carbon Credit Market** 🌍  
-
-Mustdam contributes to developing one of the first carbon credit markets and emission management systems in Saudi Arabia, helping organizations adhere to standards and reduce emissions effectively. It's a comprehensive solution for sustainable success.
 
 ## 📖 **Overview**  
 The **AI-Powered Carbon Emissions Monitoring and Management System** is an innovative platform designed to monitor, analyze, and manage carbon emissions effectively. This project leverages cutting-edge AI models and the MG811 CO₂ sensor to provide real-time data and actionable insights for both farmers and factories, enabling sustainable practices.  
