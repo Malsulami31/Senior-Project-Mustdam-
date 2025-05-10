@@ -224,3 +224,4 @@ const styles = {
 };
 
 export default Checkout;
+
