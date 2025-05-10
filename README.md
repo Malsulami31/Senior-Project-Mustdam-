@@ -14,7 +14,6 @@ The repository is divided into several parts:
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [STM32 Projects](#stm32-projects)
 - [Data Collection](#data-collection)
 - [Data Processing](#data-processing)
 - [Time Series Analysis](#time-series-analysis)
