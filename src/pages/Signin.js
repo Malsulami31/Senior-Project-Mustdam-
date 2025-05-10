@@ -48,9 +48,8 @@ const SignIn = () => {
     }
   };
 
-  return (
-
-    
+  
+  return (  
     <div
   className="min-h-screen flex flex-col justify-center items-center bg-cover bg-center px-10 py-10 pt-24"
   style={{ backgroundImage: "url('/images/Figure6.png')", backgroundSize: "cover", backgroundPosition: "center" }}
@@ -119,3 +118,4 @@ const SignIn = () => {
 };
 
 export default SignIn;
+
