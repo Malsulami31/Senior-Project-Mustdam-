@@ -11,20 +11,26 @@ import { Link } from "react-router-dom";
 
 
 
-
 const FarmerProfile = () => {
   const [sortOption, setSortOption] = useState('Newest');
   const [activePage, setActivePage] = useState("FarmerProfile");
+   // State to toggle the visibility of the add credit modal
   const [isAddCreditModalOpen, setIsAddCreditModalOpen] = useState(false);
+  // State to toggle the visibility of the edit credit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+   // State to store the list of carbon credits
   const [credits, setCredits] = useState([]);
+    // State to track the search term for filtering credits
   const [searchTerm, setSearchTerm] = useState('');
   const [newCredit, setNewCredit] = useState({
+     // State to manage the new credit form inputs
     projectSource: '',
     amount: '',
     pricePerCredit: ''
   });
+  // State to manage the credit being edited
   const [editingCredit, setEditingCredit] = useState(null);
+  // Firestore database reference
   const db = getFirestore(app);
   const [formErrors, setFormErrors] = useState({
     projectSource: false,
@@ -68,7 +74,7 @@ const FarmerProfile = () => {
 
 
 
-
+  // Handle input changes for both adding and editing credits
   const handleInputChange = (e, isEditing = false) => {
     const { name, value } = e.target;
     const setterFunction = isEditing ? setEditingCredit : setNewCredit;
@@ -86,7 +92,7 @@ const FarmerProfile = () => {
   };
 
 
-//validate inputs
+ // Validate form inputs for adding or editing credits
   const validateForm = (creditToValidate, isEditing = false) => {
     const errors = {
       projectSource: !creditToValidate.projectSource.trim(),//value must not be empty
@@ -99,7 +105,7 @@ const FarmerProfile = () => {
   };
 
 
-
+// Handle adding a new credit
 const handleAddCredit = async () => {
 
   //validate input before adding the credits
@@ -122,6 +128,7 @@ const handleAddCredit = async () => {
   };
 
   try {
+      // Add credit to Firestore
     const docRef = await addDoc(collection(db, "CarbonCredits"), creditToAdd);// add doc in which we will add the new credit
 
    // The rest of the credits (prevCredits) are added after it.
@@ -135,7 +142,7 @@ const handleAddCredit = async () => {
 
   
 
-  
+// Handle editing an existing credit  
 const handleEditCredit = async () => {
   if (!validateForm(editingCredit, true)) return;
   //the editingCredit object contains all the information about the credit being edited,
@@ -169,7 +176,7 @@ const handleEditCredit = async () => {
 
 
 
-
+// Handle deleting a credit
 const handleDeleteCredit = async (id) => {
   if (!window.confirm("Are you sure you want to delete this credit?")) return;
 
