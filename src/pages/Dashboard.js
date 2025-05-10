@@ -12,15 +12,15 @@ import axios from 'axios';
 
 
 const Dashboard = () => {
-  const [activePage, setActivePage] = useState("/Dashboard");
-  const [emissionsData, setEmissionsData] = useState([]);
-  const [forecastData, setForecastData] = useState([]);
-  const [currentEmission, setCurrentEmission] = useState(null);
-  const [currentOffset, setCurrentOffset] = useState(null);
-  const [currentCredit, setCurrentCredit] = useState(null);
-  const [factoryData, setFactoryData] = useState(null);
-  const [emissionData, setEmissionData] = useState([]);
-  const [forecastData2, setForecastData2] = useState([]);
+  const [activePage, setActivePage] = useState("/dashboard"); // State for the currently active page in the dashboard
+  const [emissionsData, setEmissionsData] = useState([]);// State for annual emissions data fetched from the database
+  const [forecastData, setForecastData] = useState([]);// State for forecasted emissions data fetched from FastAPI
+  const [currentEmission, setCurrentEmission] = useState(null);  // State for the current CO2 emission amount fetched from sensors
+  const [currentOffset, setCurrentOffset] = useState(null); // State for offset data 
+  const [currentCredit, setCurrentCredit] = useState(null);// State for credit data (currently unused but declared)
+  const [factoryData, setFactoryData] = useState(null);  // State for factory-specific data fetched from the database
+  const [emissionData, setEmissionData] = useState([]);// State for emission data specific to a factory
+  const [forecastData2, setForecastData2] = useState([]); // State for 20-minute interval forecast data fetched from FastAPI
   const [sourcesData] = useState([
     { source: "Boilers", emissions: 500 },
     { source: "Industrial Processes", emissions: 400 },
@@ -30,6 +30,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const auth = getAuth();
 
+ // Sidebar menu items with their respective icons and navigation paths
   const menuItems = [
     { name: "Dashboard", icon: <LucideHome />, path: "/dashboard" },
     { name: "Market", icon: <LucideLineChart />, path: "/Market" },
@@ -53,6 +54,7 @@ const Dashboard = () => {
         });
         setEmissionsData(emissionsList);
       } catch (error) {
+        // Handle specific errors with custom messages
         if (error.message.includes("No data found")) {
           console.error("Custom Error: No emission data available.", error);
         } else if (error.message.includes("Invalid data format")) {
@@ -67,38 +69,29 @@ const Dashboard = () => {
 
 
 
-  // Fetch CO2 Amount from the Sensor collection
+// Fetch current emissions for the logged-in user
 useEffect(() => {
   const fetchCurrentEmission = async () => {
-    try {
-      // Reference the Sensor collection
-      const sensorCollectionRef = collection(db, "Sensor");
-
-      // Get all documents in the Sensor collection
-      const sensorSnapshot = await getDocs(sensorCollectionRef);
-
-      if (!sensorSnapshot.empty) {
-        let totalCo2Amount = 0;
-
-        // Iterate through each document and aggregate the Co2Amount
-        sensorSnapshot.forEach((doc) => {
-          const sensorData = doc.data();
-          totalCo2Amount = sensorData.Co2Amount || 0; // Sum up Co2Amount, defaulting to 0 if missing
-        });
-
-        // Update the state with the total CO2 amount
-        setCurrentEmission(totalCo2Amount);
-      } else {
-        console.error("No documents found in the Sensor collection.");
+    const auth = getAuth();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDocRef = doc(db, "Factory", user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {//Verifies whether the document was found in Firestore.
+            const data = userDoc.data();//Extracts the document's data as an object
+            setCurrentEmission(data.carbonEmissions || 0);//Sets carbonEmissions (or 0 if the field is missing).
+            setCurrentOffset(data.Offset || 0);
+            setCurrentCredit(data.CarbonCreditPurchased || 0);
+          }
+        } catch (error) {
+          console.error("Error fetching user emissions:", error);
+        }
       }
-    } catch (error) {
-      console.error("Error fetching CO2 amounts from the Sensor collection:", error);
-    }
+    });
   };
-
   fetchCurrentEmission();
 }, []);
-
 
   
   // Fetch forecast data(5years) from FastAPI
@@ -139,16 +132,16 @@ useEffect(() => {
   }, []);
   
 
-
+  // Handle navigation between different pages in the dashboard
   const handleNavigation = (path) => {
-    if (path === "/Market" || path=== "/Home") {
+    if (path === "/Market" || path=== "/Home" ) {
       navigate(path);
     } else {
       setActivePage(path);
     }
   };
 
-
+// Fetch factory-specific data and related emissions data from Firestore
   useEffect(() => {
     const fetchReportData = async (uid) => {
       try {
@@ -176,7 +169,7 @@ useEffect(() => {
       } 
     };
 
-    // Get the currently logged-in user
+// Get the currently logged-in user and fetch their associated data
     onAuthStateChanged(auth, (user) => {
       if (user) {
         fetchReportData(user.uid);
