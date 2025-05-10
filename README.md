@@ -22,8 +22,6 @@ The repository is divided into several parts:
 - [Usage](#usage)
 - [Warning](#warning)
 - [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
 
 ## Introduction
 
